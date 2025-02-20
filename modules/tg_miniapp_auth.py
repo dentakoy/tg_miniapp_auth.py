@@ -1,3 +1,5 @@
+# https://github.com/dentakoy/tg_miniapp_auth.py/
+
 import typing
 import time
 import base64
@@ -26,6 +28,10 @@ def init_data_to_string(init_data: dict, bot_id: int):
     return f"{bot_id}:WebAppData\n{check_string}".encode()
 
 
+def base64_pad(base64_string: str):
+    return '=' * ((4 - len(base64_string) % 4) % 4)
+
+
 def validate_init_data(
         init_data:      dict[typing.AnyStr, list[typing.AnyStr]],
         bot_id:         int,
@@ -47,10 +53,10 @@ def validate_init_data(
     # remove hash from initData
     init_data.pop('hash', None)
 
-    verify_key          = VerifyKey(PUBLIC_KEYS[environment])
-    init_data_string    = init_data_to_string(init_data, bot_id)
-    signature           += '=' * ((4 - len(signature) % 4) % 4) # base64 padding
-    signature_bytes     = base64.urlsafe_b64decode(signature)
+    verify_key          =   VerifyKey(PUBLIC_KEYS[environment])
+    init_data_string    =   init_data_to_string(init_data, bot_id)
+    signature           +=  base64_pad(signature)
+    signature_bytes     =   base64.urlsafe_b64decode(signature)
 
     try:
         verify_key.verify(init_data_string, signature_bytes)
